@@ -1,33 +1,95 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-bool isAnagram(char* s, char* t) {
-    int* freq1 = (int*)malloc(sizeof(int)*27);
-    int* freq2 = (int*)malloc(sizeof(int)*27);
-    for(int i=0;i<27;i++){
-        freq1[i]=0;
-        freq2[i]=0;
+#define TABLE_SIZE 10007
+
+// ================= HASH TABLE =================
+
+typedef struct HashNode {
+    char *key;              // sorted string
+    int index;              // index in result array
+    struct HashNode *next;
+} HashNode;
+
+HashNode *table[TABLE_SIZE];
+
+// hash function for string
+unsigned int hash(char *s) {
+    unsigned int h = 0;
+    while (*s) {
+        h = h * 31 + *s;
+        s++;
     }
-    int len1=0,len2=0;
-    while(s[len1]!='\0'){
-        len1++;
+    return h % TABLE_SIZE;
+}
+
+// find key
+HashNode* find(char *key) {
+    unsigned int idx = hash(key);
+    HashNode *cur = table[idx];
+    while (cur) {
+        if (strcmp(cur->key, key) == 0)
+            return cur;
+        cur = cur->next;
     }
-    while(t[len2]!='\0'){
-        len2++;
-    }
-    if(len1!=len2){
-        return false;
-    }
-    for(int i=0;i<len1;i++){
-        char temp =s[i];
-        freq1[temp-'a']++;
-        temp=t[i];
-        freq2[temp-'a']++;
-    }
-    for(int i=0;i<27;i++){
-        if(freq1[i]!=freq2[i]){
-            return false;
+    return NULL;
+}
+
+// insert key
+void insert(char *key, int index) {
+    unsigned int idx = hash(key);
+    HashNode *node = malloc(sizeof(HashNode));
+    node->key = strdup(key);
+    node->index = index;
+    node->next = table[idx];
+    table[idx] = node;
+}
+
+// ================= STRING SORT =================
+
+int cmp(const void *a, const void *b) {
+    return (*(char*)a - *(char*)b);
+}
+
+char* sortedCopy(char *s) {
+    char *copy = strdup(s);
+    qsort(copy, strlen(copy), sizeof(char), cmp);
+    return copy;
+}
+
+// ================= MAIN FUNCTION =================
+
+char*** groupAnagrams(char** strs, int strsSize, int* returnSize, int** returnColumnSizes) {
+    memset(table, 0, sizeof(table));
+
+    char ***result = malloc(strsSize * sizeof(char**));
+    *returnColumnSizes = malloc(strsSize * sizeof(int));
+
+    int groupCount = 0;
+
+    for (int i = 0; i < strsSize; i++) {
+        char *key = sortedCopy(strs[i]);
+        HashNode *node = find(key);
+
+        if (node) {
+            // existing group
+            int idx = node->index;
+            int size = (*returnColumnSizes)[idx];
+            result[idx] = realloc(result[idx], (size + 1) * sizeof(char*));
+            result[idx][size] = strdup(strs[i]);
+            (*returnColumnSizes)[idx]++;
+        } else {
+            // new group
+            result[groupCount] = malloc(sizeof(char*));
+            result[groupCount][0] = strdup(strs[i]);
+            (*returnColumnSizes)[groupCount] = 1;
+            insert(key, groupCount);
+            groupCount++;
         }
+        free(key);
     }
-    free(freq1);
-    free(freq2);
-    return true;
+
+    *returnSize = groupCount;
+    return result;
 }
