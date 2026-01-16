@@ -1,36 +1,71 @@
-typedef struct {
-    int key;
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+
+struct node{
+    int value;
     int index;
-} HashNode;
+};
 
-int* twoSum(int* nums, int numsSize, int target, int* returnSize) {
-    int size = numsSize * 2;
-    HashNode* hashTable = (HashNode*)calloc(size, sizeof(HashNode));
-    int* result = (int*)malloc(2 * sizeof(int));
-    *returnSize = 2;
-
-    for (int i = 0; i < numsSize; i++) {
-        int complement = target - nums[i];
-        int hash = abs(complement) % size;
-
-        while (hashTable[hash].index != 0) {
-            if (hashTable[hash].key == complement) {
-                result[0] = hashTable[hash].index - 1;
-                result[1] = i;
-                free(hashTable);
-                return result;
-            }
-            hash = (hash + 1) % size;
-        }
-
-        int currHash = abs(nums[i]) % size;
-        while (hashTable[currHash].index != 0) {
-            currHash = (currHash + 1) % size;
-        }
-        hashTable[currHash].key = nums[i];
-        hashTable[currHash].index = i + 1; 
+int gethash(int n, int size){
+    if(n<0){
+        n=n*-1;
     }
+    return n%size;
+}
 
-    free(hashTable);
-    return result;
+
+int ispresent(struct node** hash, int number,int len){
+    int index = gethash(number,len);
+    while(hash[index]){
+        if(hash[index]->value==number){
+            return 1;
+        }
+        index=(index+1)%len;
+    }
+    return 0;
+}
+
+
+int getindex(struct node** hash,int number, int len ){
+    int index= gethash(number,len);
+    while(hash[index]){
+        if(hash[index]->value==number){
+            return hash[index]->index;
+        }
+        index=(index+1)%len;
+    }
+    return -1;
+}
+
+void storeval(struct node** hash, int val , int i, int len){
+    int index= gethash(val,len);
+    while(hash[index]){
+        index = (index+1)%len;
+    }
+    hash[index]=(struct node*)malloc(sizeof(struct node));
+    hash[index]->value = val;
+    hash[index]->index= i;
+    return ;
+}
+
+
+
+
+int* twoSum(int* arr, int len, int target, int* flen){
+    struct node** hash =(struct node*)calloc(len*2, sizeof(struct node));
+    int* farr =(int*)malloc(sizeof(int)*2);
+    *flen=2;
+    for(int i=0;i<len;i++){
+        int temp = target-arr[i];
+        if(ispresent(hash,temp,2*len)){
+            farr[0]=i;
+            farr[1]=getindex(hash,temp,2*len);
+            return farr;
+        }
+        else{
+            storeval(hash,arr[i],i,2*len);
+        }
+    }
+    return farr;
 }
