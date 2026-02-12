@@ -1,6 +1,7 @@
 struct stack{
     int * arr;
     int top;
+    int capacity;
 };
 
 int getnum(char * arr){
@@ -22,16 +23,16 @@ int getnum(char * arr){
 }
 
 
-struct stack* createstack(){
+struct stack* createstack(int capacity){
     struct stack* ans = (struct stack*)malloc(sizeof(struct stack));
-    ans->arr=NULL;
+    ans->arr = (int*)malloc(sizeof(int)*capacity);
+    ans->capacity=capacity;
     ans->top=0;
     return ans;
 }
 
 
 void insert(struct stack* st, int num){
-    st->arr = realloc(st->arr, sizeof(int)*(st->top+1));
     st->arr[st->top]=num;
     st->top= st->top+1;
     return;
@@ -43,7 +44,7 @@ int pop(struct stack* st){
 }
 
 int evalRPN(char** arr, int len) {
-    struct stack* st = createstack();
+    struct stack* st = createstack(len);
     for(int i=0;i<len;i++){
         if(strlen(arr[i])==1 && (arr[i][0]=='+'||arr[i][0]=='-'|| arr[i][0]=='*'|| arr[i][0]=='/')){
             int right= pop(st);
