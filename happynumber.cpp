@@ -11,7 +11,6 @@ public:
 
         return sum;
     }
-
     bool isHappy(int n) {
 
         unordered_map<int,int> mp;
