@@ -1,24 +1,30 @@
 class Solution {
 public:
-    int max(int a, int b){
-        if(a>b){
-            return a;
-        }
-        else{
-            return b;
-        }
-    }
-    vector<int> maxSlidingWindow(vector<int>& arr, int k) {
-        int p1=0,p2=k-1;
-        int maxsum=0,sum=0;
-        for(int i=0;i<=p2;i++){
-            sum+=arr[i];
-        }
-        maxsum=sum;
-        vector<int> v;
-        v.push_back(maxsum);
+    vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+        deque<int> dq; // stores indices
+        vector<int> result;
 
-        
-        return v;
+        for(int i = 0; i < nums.size(); i++) {
+
+            // 1. Remove elements out of current window
+            if(!dq.empty() && dq.front() <= i - k) {
+                dq.pop_front();
+            }
+
+            // 2. Remove all smaller elements from back
+            while(!dq.empty() && nums[dq.back()] < nums[i]) {
+                dq.pop_back();
+            }
+
+            // 3. Add current index
+            dq.push_back(i);
+
+            // 4. Store result (when first window is complete)
+            if(i >= k - 1) {
+                result.push_back(nums[dq.front()]);
+            }
+        }
+
+        return result;
     }
 };
