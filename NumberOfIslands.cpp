@@ -1,16 +1,19 @@
 class Solution {
 public:
-    void explore(int n, int m, vector<vector<int>>& graph, int i, int j) {
-        if(i < 0 || i >= n || j < 0 || j >= m || graph[i][j] == 1) {
+    void explore(int n, int m, vector<vector<int>>& graph, 
+                 vector<vector<char>>& grid, int i, int j) {
+        
+        if(i < 0 || i >= n || j < 0 || j >= m || 
+           graph[i][j] == 1 || grid[i][j] == '0') {
             return;
         }
 
         graph[i][j] = 1;
 
-        explore(n, m, graph, i - 1, j);
-        explore(n, m, graph, i, j - 1);
-        explore(n, m, graph, i + 1, j);
-        explore(n, m, graph, i, j + 1);
+        explore(n, m, graph, grid, i - 1, j);
+        explore(n, m, graph, grid, i, j - 1);
+        explore(n, m, graph, grid, i + 1, j);
+        explore(n, m, graph, grid, i, j + 1);
     }
 
     int numIslands(vector<vector<char>>& grid) {
@@ -22,7 +25,7 @@ public:
             for(int j = 0; j < m; j++) {
                 if(!graph[i][j] && grid[i][j] == '1') {
                     count++;
-                    explore(n, m, graph, i, j);
+                    explore(n, m, graph, grid, i, j);
                 }
             }
         }
